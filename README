@@ -1,0 +1,16 @@
+REDIS-INIT
+
+About:
+  Init script for run multi redis nodes with dedicated configs.
+
+Setup:
+  If you use debian, simple build and install package. Otherwise copy and rename init
+  in compliance with your distribution.
+  Configure variables $CONFIG_DIR, $DAEMON according to your setup.
+  Put your config_name.conf into $CONFIG_DIR.
+
+Usage:
+  sudo /etc/init.d/redis-init start foo
+  sudo /etc/init.d/redis-init stop foo
+  sudo /etc/init.d/redis-init stop all
+  sudo /etc/init.d/redis-init status all

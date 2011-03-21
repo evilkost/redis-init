@@ -1,0 +1,133 @@
+#!/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+#Debian defaults
+NAME="redis-server"
+DESC="redis server init script"
+
+#Default dirs
+CONFIG_DIR="/etc/redis/conf-enabled"
+
+#Default binaries
+DAEMON="/usr/bin/redis-server"
+
+REDIS_LIST=`ls $CONFIG_DIR | awk -F. '{print $1}'`
+
+REDIS_USER="www-data"
+
+start()
+{
+echo "Starting redis server: $DAEMON"
+for REDIS in $REDIS_LIST
+	do
+		PIDFILE=`cat $CONFIG_DIR/$REDIS.conf | grep '^pidfile' | awk -F' ' '{print $2}'`
+
+		# Create path for pid file it not exist and it chown to $DJANGO_USER.
+		# This is needed when pid file is stored under subdirectory of /var/run/
+		# because /var/run/ in mounted as tmpfs and cleared after each server reboot.
+		PIDDIR=`dirname $PIDFILE`
+		if [ -n $PIDDIR ]; then
+		    if [ ! -d $PIDDIR ]; then
+		        mkdir -p $PIDDIR
+		        chown $REDIS_USER: $PIDDIR
+		    fi
+		fi
+
+		if start-stop-daemon --quiet --stop --signal 0 --pidfile $PIDFILE 2>/dev/null 1>/dev/null; then
+		    echo "Node $REDIS is already running."
+		    exit 1
+		fi
+
+		$DAEMON $CONFIG_DIR/$REDIS.conf
+		echo "Node $REDIS started."
+	done
+}
+
+stop()
+{
+echo "Stopping redis nodes: "
+for REDIS in $REDIS_LIST
+	do
+	    PIDFILE=`cat $CONFIG_DIR/$1.conf | grep '^pidfile' | awk -F' ' '{print $2}'`
+		if [ -e $PIDFILE ]; then
+			echo "PID: $PIDFILE `cat $PIDFILE`"
+			REDIS_PORT=`cat $CONFIG_DIR/$REDIS.conf | grep '^port' | awk -F' ' '{print $2}'`
+			echo "Redis $REDIS listen on $REDIS_PORT with pid `cat $PIDFILE`"
+			(echo "shutdown\r\n"; sleep 0.1) | nc localhost $REDIS_PORT
+			echo "Node $REDIS stopped"
+			rm -f $PIDFILE
+		else
+			echo "Pidfile not found, assume that node $REDIS already stopped"
+		fi
+	done
+RETVAL=1
+echo ""
+}
+
+
+status_short()
+{
+PIDFILE=`cat $CONFIG_DIR/$1.conf | grep '^pidfile' | awk -F' ' '{print $2}'`
+REDIS_PORT=`cat $CONFIG_DIR/$REDIS.conf | grep '^port' | awk -F' ' '{print $2}'`
+
+if [ ! -e $PIDFILE ]; then
+	echo "Node $REDIS stopped"
+else
+	(echo "info\r\n"; sleep 0.1) | nc localhost $REDIS_PORT
+fi
+}
+
+
+case "$1" in
+    start)
+        shift 1
+        if [ "$*" ]; then
+            case "$*" in
+                [aA][lL][lL]);;
+                *) REDIS_LIST="$@" ;;
+            esac
+        fi
+        start $REDIS_LIST
+        ;;
+    stop)
+        shift 1
+        if [ "$*" ]; then
+            case "$*" in
+                [aA][lL][lL]);;
+                *) REDIS_LIST="$@" ;;
+            esac
+        else
+            echo "Usage: $0 stop <nodes list>|all"
+            exit 1
+        fi
+        stop $REDIS_LIST
+        ;;
+    restart)
+        shift 1
+        if [ "$*" ];then
+            case "$*" in
+                [aA][lL][lL]);;
+                *) REDIS_LIST="$@" ;;
+            esac
+        else
+            echo "Usage: $0 restart <nodes list>|all"
+        exit 1
+        fi
+        $0 stop $@
+        sleep 2
+        $0 start $@
+        RETVAL=$?
+        ;;
+    status)
+        shift 1
+        if [ "x$*" != "x" ]; then REDIS_LIST="$@"; fi
+
+        for REDIS in $REDIS_LIST; do
+            status_short "$REDIS"
+        done
+        ;;
+    *)
+        echo "Usage: /etc/init.d/redis-init {start|stop|restart|status} [node_config_name] " >&2
+        exit 1
+        ;;
+esac

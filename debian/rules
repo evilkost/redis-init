@@ -1,0 +1,4 @@
+#!/usr/bin/make -f
+
+PACKAGE = redis-init
+include /usr/share/cdbs/1/rules/debhelper.mk

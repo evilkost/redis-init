@@ -1,0 +1,13 @@
+Source: redis-init
+Section: extra
+Priority: optional
+Maintainer: Valention Gologuzov <vgol@yandex-team.ru>
+Build-Depends: cdbs (>= 0.4.48), debhelper (>= 5.0.42)
+Standards-Version: 3.7.2
+
+Package: redis-init
+Architecture: all
+Depends: redis-server
+Description: Redis init script
+  Init script for run multi redis nodes with dedicated configs.
+  repo: git://github.com/evilkost/redis-init.git
