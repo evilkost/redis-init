@@ -1,3 +1,9 @@
+redis-init (0.3) unstable; urgency=low
+
+  * now using install file
+
+ -- Valentin Gologuzov (vgol) <vgol@yandex-team.ru>  Thu, 24 Mar 2011 20:40:32 +0300
+
 redis-init (0.2) unstable; urgency=low
 
   * fix mistype.
