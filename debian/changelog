@@ -1,5 +1,11 @@
+redis-init (0.2) unstable; urgency=low
+
+  * fix mistype.
+
+ -- Valentin Gologuzov (vgol) <vgol@yandex-team.ru>  Thu, 24 Mar 2011 20:00:07 +0300
+
 redis-init (0.1) unstable; urgency=low
 
-  * Initial release. 
+  * Initial release.
 
  -- Valentin Gologuzov (vgol) <vgol@yandex-team.ru>  Mon, 21 Mar 2011 20:52:26 +0300

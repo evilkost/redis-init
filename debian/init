@@ -10,6 +10,7 @@ CONFIG_DIR="/etc/redis/conf-enabled"
 
 #Default binaries
 DAEMON="/usr/bin/redis-server"
+REDIS_CLI="/usr/bin/redis-cli"
 
 REDIS_LIST=`ls $CONFIG_DIR | awk -F. '{print $1}'`
 
