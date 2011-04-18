@@ -1,3 +1,9 @@
+redis-init (0.4) unstable; urgency=low
+
+  * added conf dirs to debian/dirs
+
+ -- Valentin Gologuzov (vgol) <vgol@yandex-team.ru>  Mon, 18 Apr 2011 21:58:18 +0400
+
 redis-init (0.3) unstable; urgency=low
 
   * now using install file
