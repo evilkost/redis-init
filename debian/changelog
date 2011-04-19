@@ -1,3 +1,9 @@
+redis-init (0.6) unstable; urgency=low
+
+  * typo
+
+ -- Valentin Gologuzov (vgol) <vgol@yandex-team.ru>  Tue, 19 Apr 2011 15:43:55 +0400
+
 redis-init (0.5) unstable; urgency=low
 
   * config discovering fixed
