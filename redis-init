@@ -12,7 +12,7 @@ CONFIG_DIR="/etc/redis/conf-enabled"
 DAEMON="/usr/bin/redis-server"
 REDIS_CLI="/usr/bin/redis-cli"
 
-REDIS_LIST=`ls $CONFIG_DIR | awk -F. '{print $1}'`
+REDIS_LIST=`ls $CONFIG_DIR | grep 'conf' | sed 's/\.conf$//'
 
 REDIS_USER="www-data"
 
