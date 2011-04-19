@@ -1,3 +1,9 @@
+redis-init (0.5) unstable; urgency=low
+
+  * config discovering fixed
+
+ -- Valentin Gologuzov (vgol) <vgol@yandex-team.ru>  Tue, 19 Apr 2011 15:38:02 +0400
+
 redis-init (0.4) unstable; urgency=low
 
   * added conf dirs to debian/dirs
