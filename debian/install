@@ -1,1 +1,2 @@
-redis-init /etc/init.d/
+redis-init	/etc/init.d/
+local.conf	/etc/redis/
