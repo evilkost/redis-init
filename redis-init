@@ -14,7 +14,7 @@ REDIS_CLI="/usr/bin/redis-cli"
 
 REDIS_LIST=`ls $CONFIG_DIR | grep 'conf' | sed 's/\.conf$//'`
 
-REDIS_USER="www-data"
+REDIS_USER="redis"
 
 start()
 {
@@ -39,7 +39,7 @@ for REDIS in $REDIS_LIST
 		    exit 1
 		fi
 
-		$DAEMON $CONFIG_DIR/$REDIS.conf
+		sudo -u $REDIS_USER $DAEMON $CONFIG_DIR/$REDIS.conf
 		echo "Node $REDIS started."
 	done
 }
