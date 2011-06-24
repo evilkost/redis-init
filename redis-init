@@ -49,7 +49,7 @@ stop()
 echo "Stopping redis nodes: "
 for REDIS in $REDIS_LIST
 	do
-	    PIDFILE=`cat $CONFIG_DIR/$1.conf | grep '^pidfile' | awk -F' ' '{print $2}'`
+	    PIDFILE=`cat $CONFIG_DIR/$REDIS.conf | grep '^pidfile' | awk -F' ' '{print $2}'`
 		if [ -e $PIDFILE ]; then
 			echo "PID: $PIDFILE `cat $PIDFILE`"
 			REDIS_PORT=`cat $CONFIG_DIR/$REDIS.conf | grep '^port' | awk -F' ' '{print $2}'`
@@ -58,7 +58,7 @@ for REDIS in $REDIS_LIST
 			echo "Node $REDIS stopped"
 			rm -f $PIDFILE
 		else
-			echo "Pidfile not found, assume that node $REDIS already stopped"
+			echo "Pidfile $PIDFILE not found, assume that node $REDIS already stopped"
 		fi
 	done
 RETVAL=1
