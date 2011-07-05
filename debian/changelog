@@ -1,3 +1,9 @@
+redis-init (0.9) unstable; urgency=low
+
+  *  version bump
+
+ -- Valentin Gologuzov (vgol) <vgol@yandex-team.ru>  Tue, 05 Jul 2011 19:36:43 +0400
+
 redis-init (0.8) unstable; urgency=low
 
   * invoke update-rc.d in postinst
