@@ -1,0 +1,25 @@
+#! /bin/sh
+# postinst.skeleton
+# Skeleton maintainer script showing all the possible cases.
+# Written by Charles Briscoe-Smith, March-June 1998.  Public Domain.
+
+# Abort if any command returns an error value
+set -e
+
+# This script is called as the last step of the installation of the
+# package.  All the package's files are in place, dpkg has already done
+# its automatic conffile handling, and all the packages we depend of
+# are already fully installed and configured.
+
+case "$1" in
+  configure)
+    # Configure this package.  If the package must prompt the user for
+    # information, do it here.
+    update-rc.d redis-init defaults
+
+    ;;
+  *) echo "$0: didn't understand being called with \`$1'" 1>&2
+     exit 1;;
+esac
+
+exit 0

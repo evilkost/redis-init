@@ -1,3 +1,10 @@
+redis-init (0.8) unstable; urgency=low
+
+  * invoke update-rc.d in postinst
+  * 'redis-init restart|stop' without args now eq to 'redis-init restart|stop all'
+
+ -- Valentin Gologuzov (vgol) <vgol@yandex-team.ru>  Tue, 05 Jul 2011 19:26:45 +0400
+
 redis-init (0.7) unstable; urgency=low
 
   * install empty /etc/redis/local.conf

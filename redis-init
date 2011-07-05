@@ -30,7 +30,7 @@ for REDIS in $REDIS_LIST
 		if [ -n $PIDDIR ]; then
 		    if [ ! -d $PIDDIR ]; then
 		        mkdir -p $PIDDIR
-		        chown $REDIS_USER: $PIDDIR
+		        chown $REDIS_USER $PIDDIR
 		    fi
 		fi
 
@@ -96,9 +96,6 @@ case "$1" in
                 [aA][lL][lL]);;
                 *) REDIS_LIST="$@" ;;
             esac
-        else
-            echo "Usage: $0 stop <nodes list>|all"
-            exit 0
         fi
         stop $REDIS_LIST
         ;;
@@ -109,9 +106,6 @@ case "$1" in
                 [aA][lL][lL]);;
                 *) REDIS_LIST="$@" ;;
             esac
-        else
-            echo "Usage: $0 restart <nodes list>|all"
-            exit 0
         fi
         $0 stop $@
         sleep 2

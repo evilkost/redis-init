@@ -1,0 +1,36 @@
+#! /bin/sh
+# prerm.skeleton
+# Skeleton maintainer script showing all the possible cases.
+# Written by Charles Briscoe-Smith, March 1998.  Public Domain.
+
+# Abort if any command returns an error value
+set -e
+
+# This script is called as the first step in removing the package from
+# the system.  This includes cases where the user explicitly asked for
+# the package to be removed, upgrade, automatic removal due to conflicts,
+# and deconfiguration due to temporary removal of a depended-on package.
+
+case "$1" in
+  remove)
+    # This package about to be removed.  There are two sub-cases.
+    if [ "$1" = purge ]; then
+    	update-rc.d redis-init remove
+	fi
+    exit 0
+	;;
+  purge)
+    update-rc.d redis-init remove
+    exit 0
+    ;;
+  upgrade)
+    exit 0;;
+  abort-upgrade)
+    exit 0;;
+  failed-upgrade)
+    exit 0;;
+  *) echo "$0: didn't understand being called with \`$1'" 1>&2
+     exit 1;;
+esac
+
+exit 0
