@@ -1,3 +1,9 @@
+redis-init (0.10) unstable; urgency=low
+
+  * Wait during start till redis finish loading data 
+
+ -- Valentin Gologuzov (vgol) <vgol@yandex-team.ru>  Fri, 15 Jul 2011 19:45:04 +0400
+
 redis-init (0.9) unstable; urgency=low
 
   *  version bump
