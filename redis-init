@@ -18,49 +18,65 @@ REDIS_USER="redis"
 
 start()
 {
-echo "Starting redis server: $DAEMON"
+#echo "Starting redis server: $DAEMON"
 for REDIS in $REDIS_LIST
-	do
-		PIDFILE=`cat $CONFIG_DIR/$REDIS.conf | grep '^pidfile' | awk -F' ' '{print $2}'`
+    do
+        PIDFILE=`cat $CONFIG_DIR/$REDIS.conf | grep '^pidfile' | awk -F' ' '{print $2}'`
 
-		# Create path for pid file it not exist and it chown to $DJANGO_USER.
-		# This is needed when pid file is stored under subdirectory of /var/run/
-		# because /var/run/ in mounted as tmpfs and cleared after each server reboot.
-		PIDDIR=`dirname $PIDFILE`
-		if [ -n $PIDDIR ]; then
-		    if [ ! -d $PIDDIR ]; then
-		        mkdir -p $PIDDIR
-		        chown $REDIS_USER $PIDDIR
-		    fi
-		fi
+        # Create path for pid file it not exist and it chown to $DJANGO_USER.
+        # This is needed when pid file is stored under subdirectory of /var/run/
+        # because /var/run/ in mounted as tmpfs and cleared after each server reboot.
+        PIDDIR=`dirname $PIDFILE`
+        if [ -n $PIDDIR ]; then
+            if [ ! -d $PIDDIR ]; then
+                mkdir -p $PIDDIR
+                chown $REDIS_USER $PIDDIR
+            fi
+        fi
 
-		if start-stop-daemon --quiet --stop --signal 0 --pidfile $PIDFILE 2>/dev/null 1>/dev/null; then
-		    echo "Node $REDIS is already running."
-		    exit 1
-		fi
-
-		sudo -u $REDIS_USER $DAEMON $CONFIG_DIR/$REDIS.conf
-		echo "Node $REDIS started."
-	done
+        if start-stop-daemon --quiet --stop --signal 0 --pidfile $PIDFILE 2>/dev/null 1>/dev/null; then
+            echo "Node $REDIS is already running, ignoring"
+        else
+            echo -n "Starting $REDIS:   "
+            if start-stop-daemon --start --quiet --umask 007 --pidfile $PIDFILE --chuid redis:redis \
+                --exec $DAEMON -- $CONFIG_DIR/$REDIS.conf
+            then
+                echo -n "Waiting for data to load..."
+                    while [ `$REDIS_CLI info |grep 'loading:1'` ]
+                    do
+                        echo -n "."
+                        sleep 1
+                    done
+                echo -e "\n$REDIS started."
+            else
+                echo "Failed to start $REDIS"
+            fi
+        fi
+    done
 }
 
 stop()
 {
 echo "Stopping redis nodes: "
 for REDIS in $REDIS_LIST
-	do
-	    PIDFILE=`cat $CONFIG_DIR/$REDIS.conf | grep '^pidfile' | awk -F' ' '{print $2}'`
-		if [ -e $PIDFILE ]; then
-			echo "PID: $PIDFILE `cat $PIDFILE`"
-			REDIS_PORT=`cat $CONFIG_DIR/$REDIS.conf | grep '^port' | awk -F' ' '{print $2}'`
-			echo "Redis $REDIS listen on $REDIS_PORT with pid `cat $PIDFILE`"
-			$REDIS_CLI -p $REDIS_PORT shutdown
-			echo "Node $REDIS stopped"
-			rm -f $PIDFILE
-		else
-			echo "Pidfile $PIDFILE not found, assume that node $REDIS already stopped"
-		fi
-	done
+    do
+        PIDFILE=`cat $CONFIG_DIR/$REDIS.conf | grep '^pidfile' | awk -F' ' '{print $2}'`
+        if [ -e $PIDFILE ]; then
+            echo "PID: $PIDFILE `cat $PIDFILE`"
+            #REDIS_PORT=`cat $CONFIG_DIR/$REDIS.conf | grep '^port' | awk -F' ' '{print $2}'`
+            #echo "Redis $REDIS listen on $REDIS_PORT with pid `cat $PIDFILE`"
+            if start-stop-daemon --stop --retry 180 --signal 15 --quiet --oknodo --pidfile $PIDFILE --exec $DAEMON
+            then
+                echo $REDIS
+            fi
+
+            #$REDIS_CLI -p $REDIS_PORT shutdown
+            #echo "Node $REDIS stopped"
+            #rm -f $PIDFILE
+        else
+            echo "Pidfile $PIDFILE not found, assume that node $REDIS already stopped"
+        fi
+    done
 RETVAL=1
 echo ""
 }
@@ -72,9 +88,10 @@ PIDFILE=`cat $CONFIG_DIR/$1.conf | grep '^pidfile' | awk -F' ' '{print $2}'`
 REDIS_PORT=`cat $CONFIG_DIR/$REDIS.conf | grep '^port' | awk -F' ' '{print $2}'`
 
 if [ ! -e $PIDFILE ]; then
-	echo "Node $REDIS stopped"
+    echo "Node $REDIS stopped"
 else
-	$REDIS_CLI -p $REDIS_PORT info
+    echo -n "$1: "
+    $REDIS_CLI -p $REDIS_PORT info | grep 'uptime_in_seconds'
 fi
 }
 
