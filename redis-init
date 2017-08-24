@@ -27,7 +27,7 @@ for REDIS in $REDIS_LIST
         # This is needed when pid file is stored under subdirectory of /var/run/
         # because /var/run/ in mounted as tmpfs and cleared after each server reboot.
         PIDDIR=`dirname $PIDFILE`
-        if [ -n $PIDDIR ]; then
+        if [ -n "$PIDDIR" ]; then
             if [ ! -d $PIDDIR ]; then
                 mkdir -p $PIDDIR
                 chown $REDIS_USER $PIDDIR
