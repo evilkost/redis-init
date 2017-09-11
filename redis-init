@@ -22,15 +22,24 @@ start()
 for REDIS in $REDIS_LIST
     do
         PIDFILE=`cat $CONFIG_DIR/$REDIS.conf | grep '^pidfile' | awk -F' ' '{print $2}'`
-
-        # Create path for pid file it not exist and it chown to $DJANGO_USER.
+        # Create path for pid file it not exist and it chown to $REDIS_USER.
         # This is needed when pid file is stored under subdirectory of /var/run/
         # because /var/run/ in mounted as tmpfs and cleared after each server reboot.
         PIDDIR=`dirname $PIDFILE`
-        if [ -n $PIDDIR ]; then
+        if [ -n "$PIDDIR" ]; then
             if [ ! -d $PIDDIR ]; then
                 mkdir -p $PIDDIR
                 chown $REDIS_USER $PIDDIR
+            fi
+        fi
+
+        DIRDIR=`cat $CONFIG_DIR/$REDIS.conf | grep '^dir' | awk -F' ' '{print $2}'`
+        # Create path for `dir` path it not exist and it chown to $REDIS_USER.
+        # because the RDB file can't be saved, the shutdown fails 
+        if [ -n "$DIRDIR" ]; then
+            if [ ! -d $DIRDIR ]; then
+                mkdir -p $DIRDIR
+                chown -R $REDIS_USER:$REDIS_USER $DIRDIR
             fi
         fi
 
@@ -91,7 +100,14 @@ if [ ! -e $PIDFILE ]; then
     echo "Node $REDIS stopped"
 else
     echo -n "$1: "
-    $REDIS_CLI -p $REDIS_PORT info | grep 'uptime_in_seconds'
+    if start-stop-daemon --stop --quiet --signal 0 --pidfile ${PIDFILE}
+    then
+        echo on
+        return 0
+    else
+        echo off
+        return 1
+    fi
 fi
 }
 
@@ -133,9 +149,13 @@ case "$1" in
         shift 1
         if [ "x$*" != "x" ]; then REDIS_LIST="$@"; fi
 
+        RETVALALL=0
         for REDIS in $REDIS_LIST; do
             status_short "$REDIS"
+            RETVAL=$?
+            RETVALALL=$(($RETVALALL+$RETVAL))
         done
+        exit $RETVALALL
         ;;
     *)
         echo "Usage: /etc/init.d/redis-init {start|stop|restart|status} [node_config_name] " >&2
