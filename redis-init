@@ -100,7 +100,14 @@ if [ ! -e $PIDFILE ]; then
     echo "Node $REDIS stopped"
 else
     echo -n "$1: "
-    $REDIS_CLI -p $REDIS_PORT info | grep 'uptime_in_seconds'
+    if start-stop-daemon --stop --quiet --signal 0 --pidfile ${PIDFILE}
+    then
+        echo on
+        return 0
+    else
+        echo off
+        return 1
+    fi
 fi
 }
 
@@ -142,9 +149,13 @@ case "$1" in
         shift 1
         if [ "x$*" != "x" ]; then REDIS_LIST="$@"; fi
 
+        RETVALALL=0
         for REDIS in $REDIS_LIST; do
             status_short "$REDIS"
+            RETVAL=$?
+            RETVALALL=$(($RETVALALL+$RETVAL))
         done
+        exit $RETVALALL
         ;;
     *)
         echo "Usage: /etc/init.d/redis-init {start|stop|restart|status} [node_config_name] " >&2
